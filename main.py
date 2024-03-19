@@ -5,7 +5,7 @@ import random
 GAME_FPS = 150
 WIDTH, HEIGHT = 1000, 700
 JUMPING_HEIGHT = 20
-MAX_ACCELERATION = 13
+MAX_ACCELERATION = 7
 VEL_X = 3  # Setting the moving speed.
 VEL_Y = JUMPING_HEIGHT  # Setting the jumping height.
 pygame.init()
@@ -80,6 +80,7 @@ for num in range(0, SHELVES_COUNT + 1):  # Creating all the game shelves.
     total_shelves_list.append(new_shelf)
 
 # Sounds:
+SOUND_ON = False
 JUMPING_SOUND = pygame.mixer.Sound("Assets/jumping_sound.wav")
 GAMEPLAY_SOUND = pygame.mixer.Sound("Assets/gameplay_sound.wav")
 HOORAY_SOUND = pygame.mixer.Sound("Assets/hooray_sound.wav")
@@ -148,7 +149,8 @@ def OnShelf():  # Checking whether the body is on a shelf, returning True/False.
                         BACKGROUND_ROLLING_SPEED += 1  # Rolling speed increases every 50 shelves.
                         current_standing_shelf = shelf.number
                     if shelf.number % 100 == 0 and shelf.number != 0:
-                        HOORAY_SOUND.play()
+                        if SOUND_ON:
+                            HOORAY_SOUND.play()
                     if shelf.number == SHELVES_COUNT:
                         GameOver()
                     return True
@@ -199,7 +201,8 @@ def main():  # Main function.
         while game_running and not paused:
             on_ground = not rolling_down and body.y == HEIGHT - 25 - body.size
             if sound_timer % (56 * GAMEPLAY_SOUND_LENGTH) == 0:  # 56 = Program loops count per second.
-                GAMEPLAY_SOUND.play()
+                if SOUND_ON:
+                    GAMEPLAY_SOUND.play()
             sound_timer += 1
             if rolling_down:  # If screen should roll down.
                 for _ in range(BACKGROUND_ROLLING_SPEED):
@@ -209,13 +212,19 @@ def main():  # Main function.
             HandleMovement(keys_pressed)  # Moving according to the pressed buttons.
             if body.acceleration != 0:  # If there's any movement.
                 Move(current_direction)
+
             if keys_pressed[pygame.K_SPACE] and (
-                    standing or on_ground):  # If enter "Space" and currently not in mid-jump.
-                body.vel_y = VEL_Y  # Resets the body's jumping velocity.
+                    standing or on_ground):  # If "Space" is pressed and currently not in mid-jump.
+                # Increase jump velocity based on current acceleration, allowing for higher jumps with more momentum.
+                # This example simply adds a portion of the acceleration to the base jump velocity, but you can adjust the formula as needed.
+                momentum_jump_boost = body.acceleration / 2  # Example formula to calculate additional jump boost based on acceleration.
+                body.vel_y = VEL_Y + momentum_jump_boost  # Applies the calculated jump boost.
                 jumping, standing, falling = True, False, False
+
             if jumping and body.vel_y >= 0:  # Jumping up.
                 if body.vel_y == VEL_Y:  # First moment of the jump.
-                    JUMPING_SOUND.play()
+                    if SOUND_ON:
+                        JUMPING_SOUND.play()
                 print("Jumping...")
                 body.y -= body.vel_y
                 body.vel_y -= 1
