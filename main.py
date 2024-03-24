@@ -228,26 +228,27 @@ HOORAY_SOUND = pygame.mixer.Sound("Assets/hooray_sound.wav")
 def Move(direction):  # Moving the body according to the wanted direction.
     global body
 
-    # Define how much the body should bounce back
-    bounce_back_distance = 20  # Adjust this value as needed
+    bounce_back_distance = 50  # Increased bounce back distance for a stronger bounce effect
+    bounce_reduction_factor = 1  # How much to reduce acceleration by (smaller values = stronger bounce)
 
     if direction == "Left":
-        # Check for collision with the left wall
+        # Check if the body is about to pass the left wall on the next step
         if body.x - body.acceleration < LEFT_WALL_BOUND:
-            body.x = LEFT_WALL_BOUND + bounce_back_distance  # Bounce back a bit
-            body.acceleration = -body.acceleration // 2  # Reverse and reduce the speed for the bounce effect
+            body.x = LEFT_WALL_BOUND + bounce_back_distance  # Bounce back from the wall
+            body.acceleration = -(body.acceleration // bounce_reduction_factor)  # Stronger bounce effect
         else:
-            body.x -= body.acceleration
+            body.x -= body.acceleration  # Normal movement
     else:  # If direction is "Right"
-        # Check for collision with the right wall
-        if body.x + body.acceleration > RIGHT_WALL_BOUND - body.size:
-            body.x = RIGHT_WALL_BOUND - body.size - bounce_back_distance  # Bounce back a bit
-            body.acceleration = -body.acceleration // 2  # Reverse and reduce the speed for the bounce effect
+        # Check if the body is about to pass the right wall on the next step
+        if body.x + body.acceleration + body.size > RIGHT_WALL_BOUND:
+            body.x = RIGHT_WALL_BOUND - body.size - bounce_back_distance  # Bounce back from the wall
+            body.acceleration = -(body.acceleration // bounce_reduction_factor)  # Stronger bounce effect
         else:
-            body.x += body.acceleration
+            body.x += body.acceleration  # Normal movement
 
-    # Always reduce the body's acceleration each frame to simulate friction or stopping
+    # Always decrease the body's acceleration each frame to simulate friction
     body.acceleration = max(0, abs(body.acceleration) - 1) * (1 if body.acceleration > 0 else -1)
+
 
 
 
