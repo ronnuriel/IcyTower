@@ -39,12 +39,75 @@ standing = False
 rolling_down = False
 new_movement = False
 current_direction = None
-current_standing_shelf = None
+current_standing_shelf = 0
 
 # Colors:
 GRAY = (180, 180, 180)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+
+
+def get_player_name():
+    font = pygame.font.SysFont("Arial", 32)
+    current_name = []
+    input_box = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 20, 200, 40)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    return ''.join(current_name)
+                elif event.key == pygame.K_BACKSPACE:
+                    current_name = current_name[:-1]
+                else:
+                    if len(current_name) < 10:  # Limit name length to 10 characters
+                        current_name.append(event.unicode)
+
+        WIN.fill((0, 0, 0))  # Clear screen
+        text_surf = font.render("Enter Name: " + ''.join(current_name), True, (255, 255, 255))
+        WIN.blit(text_surf, (input_box.x - 20, input_box.y + 5))
+        pygame.draw.rect(WIN, (255, 255, 255), input_box, 2)
+        pygame.display.update()
+
+
+def save_score(name, score):
+    with open("leaderboard.txt", "a") as file:
+        file.write(f"{name} {score}\n")
+
+
+def show_leaderboard():
+    try:
+        with open("leaderboard.txt", "r") as file:
+            scores = [line.strip().split(' ') for line in file]
+            scores.sort(key=lambda x: int(x[1]), reverse=True)  # Sort scores in descending order
+    except FileNotFoundError:
+        scores = []
+
+    running = True
+    while running:
+        WIN.fill((0, 0, 0))  # Clear screen
+        font = pygame.font.SysFont("Arial", 24)
+        title = font.render("Leaderboard", True, (255, 255, 255))
+        WIN.blit(title, (WIDTH // 2 - title.get_width() // 2, 10))
+
+        for i, (name, score) in enumerate(scores[:10], start=1):  # Display top 10 scores
+            text = font.render(f"{i}. {name} - {score}", True, (255, 255, 255))
+            WIN.blit(text, (WIDTH // 2 - text.get_width() // 2, 30 + i * 30))
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:  # Press ESC to exit leaderboard
+                    running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:  # Click to exit leaderboard
+                running = False
 
 
 def main_menu():
@@ -191,8 +254,15 @@ def DrawWindow():  # Basically, drawing the screen.
     pygame.display.update()
 
 
+def ShelfNumber():  # Returning the number of the shelf the body is standing on.
+    for shelf in total_shelves_list:
+        if body.y == shelf.rect.y - body.size:
+            return shelf.number
+
+
 def OnShelf():  # Checking whether the body is on a shelf, returning True/False.
     global jumping, standing, falling, BACKGROUND_ROLLING_SPEED, current_standing_shelf
+
     if body.vel_y <= 0:  # Means the body isn't moving upwards, so now it's landing.
         for shelf in total_shelves_list:
             if body.y <= shelf.rect.y - body.size <= body.y - body.vel_y:  # If y values collide.shelf.rect.y - body.size >= body.y and shelf.rect.y - body.size <= body.y - body.vel_y
@@ -225,6 +295,11 @@ def ScreenRollDown():  # Increasing the y values of all elements.
 
 
 def GameOver():  # Quitting the game.
+    print("Game Over")
+    print("Your score is: ", ShelfNumber())
+    name = get_player_name()
+    save_score(name, ShelfNumber())
+    show_leaderboard()
     pygame.quit()
     sys.exit(1)
 
