@@ -2,6 +2,8 @@ import sys
 import pygame
 import random
 
+from urwid import YELLOW
+
 GAME_FPS = 150
 WIDTH, HEIGHT = 1000, 700
 JUMPING_HEIGHT = 20
@@ -13,7 +15,6 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 GAMEPLAY_SOUND_LENGTH = 31  # 31 seconds.
 SHELVES_COUNT = 500  # Number of shelves in the game.
 MAX_SHELF_NUMBER = 0
-
 
 LEVEL_UP = 30
 
@@ -116,30 +117,42 @@ def show_leaderboard():
 
 def main_menu():
     menu = True
-    selected = "Easy"
+    selected_idx = 0  # Index of the selected option
+    options = ["Easy", "Medium", "Hard", "Extreme"]
+    sound_options = ["Sound ON", "Sound OFF"]
+    selected_sound_idx = 0  # Index for sound option; 0 for ON, 1 for OFF
 
     while menu:
+        WIN.fill(BLACK)
+        font = pygame.font.SysFont("Arial", 50)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    selected = "Easy"
-                elif event.key == pygame.K_DOWN:
-                    selected = "Medium"
-                elif event.key == pygame.K_LEFT:
-                    selected = "Hard"
-                elif event.key == pygame.K_RIGHT:
-                    selected = "Extreme"
+                if event.key == pygame.K_UP and selected_idx > 0:
+                    selected_idx -= 1
+                elif event.key == pygame.K_DOWN and selected_idx < len(options) - 1:
+                    selected_idx += 1
+                elif event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                    selected_sound_idx = (selected_sound_idx + 1) % 2  # Toggle sound option
                 if event.key == pygame.K_RETURN:
-                    return selected
+                    global SOUND_ON
+                    SOUND_ON = selected_sound_idx == 0  # Update SOUND_ON based on selection
+                    return options[selected_idx]  # Return the selected difficulty
 
-        WIN.fill(BLACK)
-        font = pygame.font.SysFont("Arial", 50)
-        text = font.render("Select Difficulty: " + selected, True, WHITE)
-        WIN.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2))
+        # Render the difficulty options
+        for idx, option in enumerate(options):
+            color = WHITE if idx == selected_idx else GRAY
+            text = font.render(option, True, color)
+            WIN.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - 150 + idx * 60))
+
+        # Render the sound option
+        sound_text = font.render(sound_options[selected_sound_idx], True, YELLOW)
+        WIN.blit(sound_text, (WIDTH // 2 - sound_text.get_width() // 2, HEIGHT // 2 + 150))
+
         pygame.display.update()
+
 
 
 def adjust_difficulty(difficulty):
