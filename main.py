@@ -185,7 +185,7 @@ body = Body()
 total_shelves_list = []
 for num in range(0, SHELVES_COUNT + 1):  # Creating all the game shelves.
     new_shelf = Shelf(num)
-    if num % 50 == 0:
+    if num % 30 == 0:
         new_shelf.width = BACKGROUND_WIDTH
         new_shelf.rect.width = BACKGROUND_WIDTH
         new_shelf.x = WALL_WIDTH
@@ -263,8 +263,8 @@ def OnShelf():  # Checking whether the body is on a shelf, returning True/False.
             if body.y <= shelf.rect.y - body.size <= body.y - body.vel_y:  # If y values collide.shelf.rect.y - body.size >= body.y and shelf.rect.y - body.size <= body.y - body.vel_y
                 if body.x + body.size * 2 / 3 >= shelf.rect.x and body.x + body.size * 1 / 3 <= shelf.rect.x + shelf.width:  # if x values collide.
                     body.y = shelf.rect.y - body.size
-                    if current_standing_shelf != shelf.number and shelf.number % 50 == 0 and shelf.number != 0:
-                        BACKGROUND_ROLLING_SPEED += 1  # Rolling speed increases every 50 shelves.
+                    if current_standing_shelf != shelf.number and shelf.number % 30 == 0 and shelf.number != 0:
+                        BACKGROUND_ROLLING_SPEED += 1.2  # Rolling speed increases every 30 shelves.
                         current_standing_shelf = shelf.number
                     if shelf.number % 100 == 0 and shelf.number != 0:
                         if SOUND_ON:
