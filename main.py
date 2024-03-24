@@ -264,7 +264,7 @@ def OnShelf():  # Checking whether the body is on a shelf, returning True/False.
                 if body.x + body.size * 2 / 3 >= shelf.rect.x and body.x + body.size * 1 / 3 <= shelf.rect.x + shelf.width:  # if x values collide.
                     body.y = shelf.rect.y - body.size
                     if current_standing_shelf != shelf.number and shelf.number % 30 == 0 and shelf.number != 0:
-                        BACKGROUND_ROLLING_SPEED += 1.2  # Rolling speed increases every 30 shelves.
+                        BACKGROUND_ROLLING_SPEED += 1  # Rolling speed increases every 30 shelves.
                         current_standing_shelf = shelf.number
                     if shelf.number % 100 == 0 and shelf.number != 0:
                         if SOUND_ON:
