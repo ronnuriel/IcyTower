@@ -5,7 +5,7 @@ import random
 GAME_FPS = 150
 WIDTH, HEIGHT = 1000, 700
 JUMPING_HEIGHT = 20
-MAX_ACCELERATION = 7
+MAX_ACCELERATION = 10
 VEL_X = 3  # Setting the moving speed.
 VEL_Y = JUMPING_HEIGHT  # Setting the jumping height.
 pygame.init()
@@ -47,13 +47,61 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
 
+def main_menu():
+    menu = True
+    selected = "Easy"
+
+    while menu:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    selected = "Easy"
+                elif event.key == pygame.K_DOWN:
+                    selected = "Medium"
+                elif event.key == pygame.K_LEFT:
+                    selected = "Hard"
+                elif event.key == pygame.K_RIGHT:
+                    selected = "Extreme"
+                if event.key == pygame.K_RETURN:
+                    return selected
+
+        WIN.fill(BLACK)
+        font = pygame.font.SysFont("Arial", 50)
+        text = font.render("Select Difficulty: " + selected, True, WHITE)
+        WIN.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2))
+        pygame.display.update()
+
+
+def adjust_difficulty(difficulty):
+    global BACKGROUND_ROLLING_SPEED, Shelf
+
+    if difficulty == "Easy":
+        BACKGROUND_ROLLING_SPEED = 1
+        Shelf.width_range = (5, 8)  # Easier: Wider shelves
+    elif difficulty == "Medium":
+        BACKGROUND_ROLLING_SPEED = 2
+        Shelf.width_range = (4, 7)
+    elif difficulty == "Hard":
+        BACKGROUND_ROLLING_SPEED = 3
+        Shelf.width_range = (3, 6)  # Harder: Narrower shelves
+    elif difficulty == "Extreme":
+        BACKGROUND_ROLLING_SPEED = 4
+        Shelf.width_range = (2, 5)  # Extreme: Very narrow shelves
+
+    # Modify the Shelf class to use the new width_range for generating shelf sizes
+
+
 class Shelf:
+    width_range = (4, 7)  # This will get overwritten based on difficulty
+
     def __init__(self, number):
         self.number = number
-        self.image = None
-        self.width = random.randint(4, 7) * 32
+        self.width = random.randint(*self.width_range) * 32
         self.x = random.randint(LEFT_WALL_BOUND, RIGHT_WALL_BOUND - self.width)
-        self.y = - number * 130 + HEIGHT - 25
+        self.y = -number * 130 + HEIGHT - 25
         self.rect = pygame.Rect(self.x, self.y, self.width, 32)
 
 
@@ -271,4 +319,6 @@ def main():  # Main function.
 
 
 if __name__ == "__main__":
+    selected_difficulty = main_menu()
+    adjust_difficulty(selected_difficulty)
     main()
