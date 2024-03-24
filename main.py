@@ -20,10 +20,19 @@ MAX_SHELF_NUMBER = 0
 LEVEL_UP = 30
 
 # Images:
-BODY_IMAGE = pygame.image.load("Assets/body.png")
+# BODY_IMAGE = pygame.image.load("Assets/body.png")
+BODY_IMAGE = pygame.image.load("Assets/icyMan.png")
 BACKGROUND = pygame.image.load("Assets/background.png")
 BRICK_IMAGE = pygame.image.load("Assets/brick_block.png")
 SHELF_BRICK_IMAGE = pygame.image.load("Assets/shelf_brick.png")
+
+new_width = 64
+new_height = 64
+
+# Resize the sprite
+BODY_IMAGE = pygame.transform.scale(BODY_IMAGE, (new_width, new_height))
+
+
 
 # Walls settings:
 WALLS_Y = -128
@@ -217,17 +226,29 @@ HOORAY_SOUND = pygame.mixer.Sound("Assets/hooray_sound.wav")
 
 
 def Move(direction):  # Moving the body according to the wanted direction.
+    global body
+
+    # Define how much the body should bounce back
+    bounce_back_distance = 20  # Adjust this value as needed
+
     if direction == "Left":
-        if body.x - body.acceleration >= LEFT_WALL_BOUND:  # If the body isn't about to pass the left wall on the next step.
-            body.x -= body.acceleration  # Take the step.
-        else:  # If the body is about to pass the left wall on the next step.
-            body.x = LEFT_WALL_BOUND  # Force it to stay inside.
-    else:  # If direction is right
-        if body.x + body.acceleration <= RIGHT_WALL_BOUND - body.size:  # If the body isn't about to pass the right wall on the next step.
-            body.x += body.acceleration  # Take the step.
-        else:  # If the body is about to pass the right wall on the next step.
-            body.x = RIGHT_WALL_BOUND - body.size  # Force the body to stay inside.
-    body.acceleration -= 1  # Decreasing body's movement speed.
+        # Check for collision with the left wall
+        if body.x - body.acceleration < LEFT_WALL_BOUND:
+            body.x = LEFT_WALL_BOUND + bounce_back_distance  # Bounce back a bit
+            body.acceleration = -body.acceleration // 2  # Reverse and reduce the speed for the bounce effect
+        else:
+            body.x -= body.acceleration
+    else:  # If direction is "Right"
+        # Check for collision with the right wall
+        if body.x + body.acceleration > RIGHT_WALL_BOUND - body.size:
+            body.x = RIGHT_WALL_BOUND - body.size - bounce_back_distance  # Bounce back a bit
+            body.acceleration = -body.acceleration // 2  # Reverse and reduce the speed for the bounce effect
+        else:
+            body.x += body.acceleration
+
+    # Always reduce the body's acceleration each frame to simulate friction or stopping
+    body.acceleration = max(0, abs(body.acceleration) - 1) * (1 if body.acceleration > 0 else -1)
+
 
 
 def HandleMovement(keys_pressed):  # Handling the Left/Right buttons pressing.
