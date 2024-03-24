@@ -12,6 +12,7 @@ pygame.init()
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 GAMEPLAY_SOUND_LENGTH = 31  # 31 seconds.
 SHELVES_COUNT = 500  # Number of shelves in the game.
+MAX_SHELF_NUMBER = 0
 
 # Images:
 BODY_IMAGE = pygame.image.load("Assets/body.png")
@@ -254,14 +255,8 @@ def DrawWindow():  # Basically, drawing the screen.
     pygame.display.update()
 
 
-def ShelfNumber():  # Returning the number of the shelf the body is standing on.
-    for shelf in total_shelves_list:
-        if body.y == shelf.rect.y - body.size:
-            return shelf.number
-
-
 def OnShelf():  # Checking whether the body is on a shelf, returning True/False.
-    global jumping, standing, falling, BACKGROUND_ROLLING_SPEED, current_standing_shelf
+    global jumping, standing, falling, BACKGROUND_ROLLING_SPEED, current_standing_shelf, MAX_SHELF_NUMBER
 
     if body.vel_y <= 0:  # Means the body isn't moving upwards, so now it's landing.
         for shelf in total_shelves_list:
@@ -276,6 +271,7 @@ def OnShelf():  # Checking whether the body is on a shelf, returning True/False.
                             HOORAY_SOUND.play()
                     if shelf.number == SHELVES_COUNT:
                         GameOver()
+                    MAX_SHELF_NUMBER = shelf.number
                     return True
     else:  # Means body in not on a shelf.
         jumping, standing, falling = False, False, True
@@ -296,9 +292,9 @@ def ScreenRollDown():  # Increasing the y values of all elements.
 
 def GameOver():  # Quitting the game.
     print("Game Over")
-    print("Your score is: ", ShelfNumber())
+    print("Your score is: ", MAX_SHELF_NUMBER)
     name = get_player_name()
-    save_score(name, ShelfNumber())
+    save_score(name, MAX_SHELF_NUMBER)
     show_leaderboard()
     pygame.quit()
     sys.exit(1)
