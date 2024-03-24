@@ -2,7 +2,8 @@ import sys
 import pygame
 import random
 
-from urwid import YELLOW
+YELLOW = (255, 255, 0)
+
 
 GAME_FPS = 150
 WIDTH, HEIGHT = 1000, 700
