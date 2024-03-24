@@ -64,6 +64,7 @@ class Body:
         self.y = HEIGHT - 25 - self.size
         self.vel_y = 0
         self.acceleration = 0
+        self.angle = 0
         self.jumpable = self.vel_y <= 0  # If body is hitting a level, then it can jump only if the body is going down.
 
 
@@ -134,7 +135,11 @@ def DrawWindow():  # Basically, drawing the screen.
     for y in range(WALLS_Y, HEIGHT, 108):  # Drawing the walls.
         WIN.blit(BRICK_IMAGE, (0, y))
         WIN.blit(BRICK_IMAGE, (WIDTH - WALL_WIDTH, y))
-    WIN.blit(BODY_IMAGE, (body.x, body.y))  # Drawing the body.
+
+    rotated_image = pygame.transform.rotate(BODY_IMAGE, body.angle)
+    new_rect = rotated_image.get_rect(center=BODY_IMAGE.get_rect(topleft=(body.x, body.y)).center)
+
+    WIN.blit(rotated_image, new_rect.topleft)  # Draw the rotated character
     pygame.display.update()
 
 
@@ -186,7 +191,7 @@ def CheckIfTouchingFloor():  # Checking if the body is still on the main ground.
             GameOver()
 
 
-def HandleBackground(): # Drawing the background.
+def HandleBackground():  # Drawing the background.
     if body.y >= total_shelves_list[500].rect.y:
         WIN.blit(BACKGROUND, (32, background_y))
 
@@ -214,11 +219,10 @@ def main():  # Main function.
                 Move(current_direction)
 
             if keys_pressed[pygame.K_SPACE] and (
-                    standing or on_ground):  # If "Space" is pressed and currently not in mid-jump.
-                # Increase jump velocity based on current acceleration, allowing for higher jumps with more momentum.
-                # This example simply adds a portion of the acceleration to the base jump velocity, but you can adjust the formula as needed.
-                momentum_jump_boost = body.acceleration / 2  # Example formula to calculate additional jump boost based on acceleration.
-                body.vel_y = VEL_Y + momentum_jump_boost  # Applies the calculated jump boost.
+                    standing or on_ground):  # If enter "Space" and currently not in mid-jump.
+                body.vel_y = VEL_Y  # Resets the body's jumping velocity.
+                jumping, standing, falling = True, False, False
+
                 jumping, standing, falling = True, False, False
 
             if jumping and body.vel_y >= 0:  # Jumping up.
@@ -243,10 +247,18 @@ def main():  # Main function.
                     body.y -= body.vel_y
                     body.vel_y -= 1
             CheckIfTouchingFloor()
+
             if standing and not OnShelf() and not on_ground:  # If falling from a shelf.
                 print("Falling from shelf...")
                 body.vel_y = 0  # Falls slowly from the shelf and not as it falls at the end of a jumping.
+                body.angle = 0
                 standing, falling = False, True
+
+            if jumping and body.acceleration != 0:
+                body.angle += 20  # Adjust this value to control the speed of the spin
+            else:
+                body.angle = 0  # Reset the angle when not jumping
+
             if body.acceleration == MAX_ACCELERATION - 1:  # While on max acceleration, getting a jumping height boost.
                 VEL_Y = JUMPING_HEIGHT + 5
             else:  # If not on max acceleration.
