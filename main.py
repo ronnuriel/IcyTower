@@ -138,10 +138,36 @@ def show_leaderboard():
                 running = False
 
 
+def show_instructions():
+    instructions_running = True
+    while instructions_running:
+        WIN.fill(BLACK)  # Clear the screen
+        font = pygame.font.SysFont("Arial", 24)
+        instructions_text = [
+            "Game Instructions:",
+            "Move Left: Arrow Key Left",
+            "Move Right: Arrow Key Right",
+            "Jump: Spacebar",
+            "Your goal is to reach as high as possible by jumping on shelves.",
+            "Avoid falling down!",
+            "Press any key to return to the main menu."
+        ]
+
+        for i, line in enumerate(instructions_text):
+            text = font.render(line, True, WHITE)
+            WIN.blit(text, (20, 30 + i * 30))
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                instructions_running = False
+
+
 def main_menu():
     menu = True
     selected_idx = 0  # Index of the selected option
-    options = ["Easy", "Medium", "Hard", "Extreme"]
+    options = ["Easy", "Medium", "Hard", "Extreme", "Instructions"]
     sound_options = ["Sound ON", "Sound OFF"]
     selected_sound_idx = 0  # Index for sound option; 0 for ON, 1 for OFF
 
@@ -160,11 +186,15 @@ def main_menu():
                 elif event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                     selected_sound_idx = (selected_sound_idx + 1) % 2  # Toggle sound option
                 if event.key == pygame.K_RETURN:
-                    global SOUND_ON
-                    SOUND_ON = selected_sound_idx == 0  # Update SOUND_ON based on selection
-                    return options[selected_idx]  # Return the selected difficulty
+                    if options[selected_idx] == "Instructions":
+                        show_instructions()  # Display instructions
+                        continue  # Return to menu after instructions are displayed
+                    else:
+                        global SOUND_ON
+                        SOUND_ON = selected_sound_idx == 0  # Update SOUND_ON based on selection
+                        return options[selected_idx]  # Return the selected difficulty or option
 
-        # Render the difficulty options
+        # Render the menu options
         for idx, option in enumerate(options):
             color = WHITE if idx == selected_idx else GRAY
             text = font.render(option, True, color)
@@ -175,6 +205,7 @@ def main_menu():
         WIN.blit(sound_text, (WIDTH // 2 - sound_text.get_width() // 2, HEIGHT // 2 + 150))
 
         pygame.display.update()
+
 
 
 
@@ -353,6 +384,9 @@ def GameOver():  # Quitting the game.
     print("Game Over")
     print("Your score is: ", MAX_SHELF_NUMBER)
     name = get_player_name()
+    if name == "":
+        name = "Anonymous"
+
     save_score(name, MAX_SHELF_NUMBER, SELECTED_DIFFICULTY)
     show_leaderboard()
     pygame.quit()
