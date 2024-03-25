@@ -464,7 +464,7 @@ def GameOver():
                     sys.exit()
 
         WIN.fill(BLACK)  # Clear screen for buttons
-        draw_button("Quit", quit_button_position[:2], quit_button_position[2:], quit_button_hovered)
+        draw_button("Quit?", quit_button_position[:2], quit_button_position[2:], quit_button_hovered)
 
         pygame.display.update()
 
