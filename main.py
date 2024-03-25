@@ -4,7 +4,6 @@ import random
 
 YELLOW = (255, 255, 0)
 
-
 GAME_FPS = 150
 WIDTH, HEIGHT = 1000, 700
 JUMPING_HEIGHT = 20
@@ -32,6 +31,20 @@ SHELF_BRICK_IMAGE2 = pygame.image.load("Assets/ice.png")
 SHELF_BRICK_IMAGE3 = pygame.image.load("Assets/fire.png.webp")
 
 
+instruction_images = [
+    pygame.image.load("Assets/test.jpeg"),
+    pygame.image.load("assets/background2.jpg"),
+    pygame.image.load("assets/background3.jpg"),
+
+    pygame.image.load("Assets/body.png"),
+    ]
+
+new_width = 800
+new_height = 600
+
+for i in range(len(instruction_images)):
+    instruction_images[i] = pygame.transform.scale(instruction_images[i], (new_width, new_height))
+
 
 new_width = 64
 new_height = 64
@@ -42,9 +55,6 @@ new_height = 32
 new_width = 32
 SHELF_BRICK_IMAGE2 = pygame.transform.scale(SHELF_BRICK_IMAGE2, (new_width, new_height))
 SHELF_BRICK_IMAGE3 = pygame.transform.scale(SHELF_BRICK_IMAGE3, (new_width, new_height))
-
-
-
 
 # Walls settings:
 WALLS_Y = -128
@@ -105,7 +115,6 @@ def save_score(name, score, difficulty):
         file.write(f"{name} {score} {difficulty}\n")
 
 
-
 def show_leaderboard():
     try:
         with open("leaderboard.txt", "r") as file:
@@ -140,28 +149,56 @@ def show_leaderboard():
 
 def show_instructions():
     instructions_running = True
+    current_image_idx = 0  # Start with the first image
+
     while instructions_running:
         WIN.fill(BLACK)  # Clear the screen
         font = pygame.font.SysFont("Arial", 24)
-        instructions_text = [
-            "Game Instructions:",
-            "Move Left: Arrow Key Left",
-            "Move Right: Arrow Key Right",
-            "Jump: Spacebar",
-            "Your goal is to reach as high as possible by jumping on shelves.",
-            "Avoid falling down!",
-            "Press any key to return to the main menu."
-        ]
+        instructions_text = "Use the LEFT and RIGHT arrow keys to change images. Press any other key to return."
 
-        for i, line in enumerate(instructions_text):
-            text = font.render(line, True, WHITE)
-            WIN.blit(text, (20, 30 + i * 30))
+        # Render instruction text above the image
+        text_surface = font.render(instructions_text, True, WHITE)
+        WIN.blit(text_surface, (20, HEIGHT - 30))  # Adjust positioning as needed
+
+        # Display the current instruction image
+        WIN.blit(instruction_images[current_image_idx], ((WIDTH - instruction_images[current_image_idx].get_width()) // 2, 50))
 
         pygame.display.update()
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                instructions_running = False
+                if event.key == pygame.K_LEFT:
+                    current_image_idx = (current_image_idx - 1) % len(instruction_images)  # Go to the previous image
+                elif event.key == pygame.K_RIGHT:
+                    current_image_idx = (current_image_idx + 1) % len(instruction_images)  # Go to the next image
+                else:
+                    instructions_running = False  # Exit on any other key press
+
+
+# def show_instructions():
+#     instructions_running = True
+#     while instructions_running:
+#         WIN.fill(BLACK)  # Clear the screen
+#         font = pygame.font.SysFont("Arial", 24)
+#         instructions_text = [
+#             "Game Instructions:",
+#             "Move Left: Arrow Key Left",
+#             "Move Right: Arrow Key Right",
+#             "Jump: Spacebar",
+#             "Your goal is to reach as high as possible by jumping on shelves.",
+#             "Avoid falling down!",
+#             "Press any key to return to the main menu."
+#         ]
+#
+#         for i, line in enumerate(instructions_text):
+#             text = font.render(line, True, WHITE)
+#             WIN.blit(text, (20, 30 + i * 30))
+#
+#         pygame.display.update()
+#
+#         for event in pygame.event.get():
+#             if event.type == pygame.KEYDOWN:
+#                 instructions_running = False
 
 
 def main_menu():
@@ -205,8 +242,6 @@ def main_menu():
         WIN.blit(sound_text, (WIDTH // 2 - sound_text.get_width() // 2, HEIGHT // 2 + 150))
 
         pygame.display.update()
-
-
 
 
 def adjust_difficulty(difficulty):
@@ -292,8 +327,6 @@ def Move(direction):  # Moving the body according to the wanted direction.
 
     # Always decrease the body's acceleration each frame to simulate friction
     body.acceleration = max(0, abs(body.acceleration) - 1) * (1 if body.acceleration > 0 else -1)
-
-
 
 
 def HandleMovement(keys_pressed):  # Handling the Left/Right buttons pressing.
