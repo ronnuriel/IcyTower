@@ -27,8 +27,9 @@ SELECTED_DIFFICULTY = None
 BODY_IMAGE = pygame.image.load("Assets/icyMan.png")
 BACKGROUND = pygame.image.load("Assets/background2.jpg")
 BRICK_IMAGE = pygame.image.load("Assets/brick_block.png")
-NEW_SHELF_BRICK_IMAGE = pygame.image.load("Assets/ice.png")
 SHELF_BRICK_IMAGE = pygame.image.load("Assets/shelf_brick.png")
+SHELF_BRICK_IMAGE2 = pygame.image.load("Assets/ice.png")
+SHELF_BRICK_IMAGE3 = pygame.image.load("Assets/fire.png.webp")
 
 
 
@@ -39,7 +40,8 @@ BODY_IMAGE = pygame.transform.scale(BODY_IMAGE, (new_width, new_height))
 
 new_height = 32
 new_width = 32
-NEW_SHELF_BRICK_IMAGE = pygame.transform.scale(NEW_SHELF_BRICK_IMAGE, (new_width, new_height))
+SHELF_BRICK_IMAGE2 = pygame.transform.scale(SHELF_BRICK_IMAGE2, (new_width, new_height))
+SHELF_BRICK_IMAGE3 = pygame.transform.scale(SHELF_BRICK_IMAGE3, (new_width, new_height))
 
 
 
@@ -239,8 +241,8 @@ HOORAY_SOUND = pygame.mixer.Sound("Assets/hooray_sound.wav")
 def Move(direction):  # Moving the body according to the wanted direction.
     global body
 
-    bounce_back_distance = 50  # Increased bounce back distance for a stronger bounce effect
-    bounce_reduction_factor = 1  # How much to reduce acceleration by (smaller values = stronger bounce)
+    bounce_back_distance = 20  # Increased bounce back distance for a stronger bounce effect
+    bounce_reduction_factor = 3  # How much to reduce acceleration by (smaller values = stronger bounce)
 
     if direction == "Left":
         # Check if the body is about to pass the left wall on the next step
@@ -285,7 +287,13 @@ def DrawWindow():  # Basically, drawing the screen.
     font = pygame.font.SysFont("Arial", 26)
     HandleBackground()
     for shelf in total_shelves_list:
-        shelf_image = NEW_SHELF_BRICK_IMAGE if shelf.number >= 30 else SHELF_BRICK_IMAGE
+        if shelf.number < 20:
+            shelf_image = SHELF_BRICK_IMAGE
+        elif shelf.number < 40:
+            shelf_image = SHELF_BRICK_IMAGE2
+        else:
+            shelf_image = SHELF_BRICK_IMAGE3
+
         for x in range(shelf.rect.x, shelf.rect.x + shelf.width, 32):
             WIN.blit(shelf_image, (x, shelf.rect.y))  # Drawing the shelf.
             if shelf.number % 10 == 0 and shelf.number != 0:
