@@ -30,21 +30,19 @@ SHELF_BRICK_IMAGE = pygame.image.load("Assets/shelf_brick.png")
 SHELF_BRICK_IMAGE2 = pygame.image.load("Assets/ice.png")
 SHELF_BRICK_IMAGE3 = pygame.image.load("Assets/fire.png.webp")
 
-
 instruction_images = [
     pygame.image.load("Assets/test.jpeg"),
     pygame.image.load("assets/background2.jpg"),
     pygame.image.load("assets/background3.jpg"),
 
     pygame.image.load("Assets/body.png"),
-    ]
+]
 
 new_width = 800
 new_height = 600
 
 for i in range(len(instruction_images)):
     instruction_images[i] = pygame.transform.scale(instruction_images[i], (new_width, new_height))
-
 
 new_width = 64
 new_height = 64
@@ -161,7 +159,8 @@ def show_instructions():
         WIN.blit(text_surface, (20, HEIGHT - 30))  # Adjust positioning as needed
 
         # Display the current instruction image
-        WIN.blit(instruction_images[current_image_idx], ((WIDTH - instruction_images[current_image_idx].get_width()) // 2, 50))
+        WIN.blit(instruction_images[current_image_idx],
+                 ((WIDTH - instruction_images[current_image_idx].get_width()) // 2, 50))
 
         pygame.display.update()
 
@@ -413,17 +412,51 @@ def ScreenRollDown():  # Increasing the y values of all elements.
         WALLS_Y = -108
 
 
-def GameOver():  # Quitting the game.
+def draw_button(text, position, size, is_hovered):
+    font = pygame.font.SysFont("Arial", 32)
+    text_surf = font.render(text, True, BLACK if is_hovered else WHITE)
+    button_rect = pygame.Rect(position, size)
+    pygame.draw.rect(WIN, YELLOW if is_hovered else GRAY, button_rect)
+    text_rect = text_surf.get_rect(center=button_rect.center)
+    WIN.blit(text_surf, text_rect)
+    return button_rect
+
+
+def GameOver():
     print("Game Over")
     print("Your score is: ", MAX_SHELF_NUMBER)
     name = get_player_name()
+
     if name == "":
         name = "Anonymous"
 
     save_score(name, MAX_SHELF_NUMBER, SELECTED_DIFFICULTY)
     show_leaderboard()
-    pygame.quit()
-    sys.exit(1)
+
+    # Buttons setup
+    quit_button_position = (WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
+    restart_button_position = (WIDTH // 2 - 100, HEIGHT // 2 + 60, 200, 50)
+    running = True
+    while running:
+        mouse_pos = pygame.mouse.get_pos()
+        quit_button_hovered = quit_button_position[0] < mouse_pos[0] < quit_button_position[0] + quit_button_position[
+            2] and \
+                              quit_button_position[1] < mouse_pos[1] < quit_button_position[1] + quit_button_position[3]
+        restart_button_hovered = restart_button_position[0] < mouse_pos[0] < restart_button_position[0] + \
+                                 restart_button_position[2] and \
+                                 restart_button_position[1] < mouse_pos[1] < restart_button_position[1] + \
+                                 restart_button_position[3]
+
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if quit_button_hovered:
+                    pygame.quit()
+                    sys.exit()
+
+        WIN.fill(BLACK)  # Clear screen for buttons
+        draw_button("Quit", quit_button_position[:2], quit_button_position[2:], quit_button_hovered)
+
+        pygame.display.update()
 
 
 def CheckIfTouchingFloor():  # Checking if the body is still on the main ground.
