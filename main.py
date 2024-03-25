@@ -17,20 +17,30 @@ GAMEPLAY_SOUND_LENGTH = 31  # 31 seconds.
 SHELVES_COUNT = 500  # Number of shelves in the game.
 MAX_SHELF_NUMBER = 0
 
+# Constants:
 LEVEL_UP = 30
+SELECTED_DIFFICULTY = None
 
 # Images:
 # BODY_IMAGE = pygame.image.load("Assets/body.png")
+# BACKGROUND = pygame.image.load("Assets/background.png")
 BODY_IMAGE = pygame.image.load("Assets/icyMan.png")
-BACKGROUND = pygame.image.load("Assets/background.png")
+BACKGROUND = pygame.image.load("Assets/background2.jpg")
 BRICK_IMAGE = pygame.image.load("Assets/brick_block.png")
+NEW_SHELF_BRICK_IMAGE = pygame.image.load("Assets/ice.png")
 SHELF_BRICK_IMAGE = pygame.image.load("Assets/shelf_brick.png")
+
+
 
 new_width = 64
 new_height = 64
-
 # Resize the sprite
 BODY_IMAGE = pygame.transform.scale(BODY_IMAGE, (new_width, new_height))
+
+new_height = 32
+new_width = 32
+NEW_SHELF_BRICK_IMAGE = pygame.transform.scale(NEW_SHELF_BRICK_IMAGE, (new_width, new_height))
+
 
 
 
@@ -88,15 +98,16 @@ def get_player_name():
         pygame.display.update()
 
 
-def save_score(name, score):
+def save_score(name, score, difficulty):
     with open("leaderboard.txt", "a") as file:
-        file.write(f"{name} {score}\n")
+        file.write(f"{name} {score} {difficulty}\n")
+
 
 
 def show_leaderboard():
     try:
         with open("leaderboard.txt", "r") as file:
-            scores = [line.strip().split(' ') for line in file]
+            scores = [line.strip().split(' ', 2) for line in file]  # Split each line into name, score, and difficulty
             scores.sort(key=lambda x: int(x[1]), reverse=True)  # Sort scores in descending order
     except FileNotFoundError:
         scores = []
@@ -108,8 +119,8 @@ def show_leaderboard():
         title = font.render("Leaderboard", True, (255, 255, 255))
         WIN.blit(title, (WIDTH // 2 - title.get_width() // 2, 10))
 
-        for i, (name, score) in enumerate(scores[:10], start=1):  # Display top 10 scores
-            text = font.render(f"{i}. {name} - {score}", True, (255, 255, 255))
+        for i, (name, score, difficulty) in enumerate(scores[:10], start=1):  # Display top 10 scores
+            text = font.render(f"{i}. {name} - {score} - {difficulty}", True, (255, 255, 255))
             WIN.blit(text, (WIDTH // 2 - text.get_width() // 2, 30 + i * 30))
 
         pygame.display.update()
@@ -170,16 +181,16 @@ def adjust_difficulty(difficulty):
 
     if difficulty == "Easy":
         BACKGROUND_ROLLING_SPEED = 1
-        Shelf.width_range = (5, 8)  # Easier: Wider shelves
+        Shelf.width_range = (7, 9)  # Easier: Wider shelves
     elif difficulty == "Medium":
         BACKGROUND_ROLLING_SPEED = 2
-        Shelf.width_range = (4, 7)
+        Shelf.width_range = (5, 8)
     elif difficulty == "Hard":
         BACKGROUND_ROLLING_SPEED = 3
-        Shelf.width_range = (3, 6)  # Harder: Narrower shelves
+        Shelf.width_range = (4, 7)  # Harder: Narrower shelves
     elif difficulty == "Extreme":
         BACKGROUND_ROLLING_SPEED = 4
-        Shelf.width_range = (2, 5)  # Extreme: Very narrow shelves
+        Shelf.width_range = (3, 5)  # Extreme: Very narrow shelves
 
     # Modify the Shelf class to use the new width_range for generating shelf sizes
 
@@ -274,8 +285,9 @@ def DrawWindow():  # Basically, drawing the screen.
     font = pygame.font.SysFont("Arial", 26)
     HandleBackground()
     for shelf in total_shelves_list:
+        shelf_image = NEW_SHELF_BRICK_IMAGE if shelf.number >= 30 else SHELF_BRICK_IMAGE
         for x in range(shelf.rect.x, shelf.rect.x + shelf.width, 32):
-            WIN.blit(SHELF_BRICK_IMAGE, (x, shelf.rect.y))  # Drawing the shelf.
+            WIN.blit(shelf_image, (x, shelf.rect.y))  # Drawing the shelf.
             if shelf.number % 10 == 0 and shelf.number != 0:
                 shelf_number = pygame.Rect(shelf.rect.x + shelf.rect.width / 2 - 16, shelf.rect.y,
                                            16 * len(str(shelf.number)), 25)
@@ -333,7 +345,7 @@ def GameOver():  # Quitting the game.
     print("Game Over")
     print("Your score is: ", MAX_SHELF_NUMBER)
     name = get_player_name()
-    save_score(name, MAX_SHELF_NUMBER)
+    save_score(name, MAX_SHELF_NUMBER, SELECTED_DIFFICULTY)
     show_leaderboard()
     pygame.quit()
     sys.exit(1)
@@ -429,6 +441,6 @@ def main():  # Main function.
 
 
 if __name__ == "__main__":
-    selected_difficulty = main_menu()
-    adjust_difficulty(selected_difficulty)
+    SELECTED_DIFFICULTY = main_menu()
+    adjust_difficulty(SELECTED_DIFFICULTY)
     main()

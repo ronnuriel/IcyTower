@@ -1,8 +1,8 @@
-Ron 11
-Ron 3
-AA 4
-Ron 13
- Ron 16
- aa 2
- aa 3
-S 5
+TT 37 Easy
+ S 21 Easy
+AA 1 Easy
+A 9 Easy
+a 39 Easy
+A 10 Easy
+Afd 56 Easy
+Ad 31 Easy
