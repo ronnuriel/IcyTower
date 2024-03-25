@@ -435,17 +435,12 @@ def GameOver():
 
     # Buttons setup
     quit_button_position = (WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
-    restart_button_position = (WIDTH // 2 - 100, HEIGHT // 2 + 60, 200, 50)
     running = True
     while running:
         mouse_pos = pygame.mouse.get_pos()
         quit_button_hovered = quit_button_position[0] < mouse_pos[0] < quit_button_position[0] + quit_button_position[
             2] and \
                               quit_button_position[1] < mouse_pos[1] < quit_button_position[1] + quit_button_position[3]
-        restart_button_hovered = restart_button_position[0] < mouse_pos[0] < restart_button_position[0] + \
-                                 restart_button_position[2] and \
-                                 restart_button_position[1] < mouse_pos[1] < restart_button_position[1] + \
-                                 restart_button_position[3]
 
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
