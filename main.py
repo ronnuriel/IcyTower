@@ -1,302 +1,15 @@
 import sys
 import pygame
 import random
+from Const import *
+from Body import Body
+from Shelf import OnShelf, Shelf
+from Menu import main_menu, get_player_name
+from Scores import save_score, show_leaderboard
 
-YELLOW = (255, 255, 0)
 
-GAME_FPS = 150
-WIDTH, HEIGHT = 1000, 700
-JUMPING_HEIGHT = 20
-MAX_ACCELERATION = 10
-VEL_X = 3  # Setting the moving speed.
-VEL_Y = JUMPING_HEIGHT  # Setting the jumping height.
 pygame.init()
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-GAMEPLAY_SOUND_LENGTH = 31  # 31 seconds.
-SHELVES_COUNT = 500  # Number of shelves in the game.
-MAX_SHELF_NUMBER = 0
-
-# Constants:
-LEVEL_UP = 30
-SELECTED_DIFFICULTY = None
-
-# Images:
-# BODY_IMAGE = pygame.image.load("Assets/body.png")
-# BACKGROUND = pygame.image.load("Assets/background.png")
-BODY_IMAGE = pygame.image.load("Assets/icyMan.png")
-BACKGROUND = pygame.image.load("Assets/background2.jpg")
-BRICK_IMAGE = pygame.image.load("Assets/brick_block.png")
-SHELF_BRICK_IMAGE = pygame.image.load("Assets/shelf_brick.png")
-SHELF_BRICK_IMAGE2 = pygame.image.load("Assets/ice.png")
-SHELF_BRICK_IMAGE3 = pygame.image.load("Assets/fire.png.webp")
-
-instruction_images = [
-    pygame.image.load("Assets/test.jpeg"),
-    pygame.image.load("assets/background2.jpg"),
-    pygame.image.load("assets/background3.jpg"),
-
-    pygame.image.load("Assets/body.png"),
-]
-
-new_width = 800
-new_height = 600
-
-for i in range(len(instruction_images)):
-    instruction_images[i] = pygame.transform.scale(instruction_images[i], (new_width, new_height))
-
-new_width = 64
-new_height = 64
-# Resize the sprite
-BODY_IMAGE = pygame.transform.scale(BODY_IMAGE, (new_width, new_height))
-
-new_height = 32
-new_width = 32
-SHELF_BRICK_IMAGE2 = pygame.transform.scale(SHELF_BRICK_IMAGE2, (new_width, new_height))
-SHELF_BRICK_IMAGE3 = pygame.transform.scale(SHELF_BRICK_IMAGE3, (new_width, new_height))
-
-# Walls settings:
-WALLS_Y = -128
-WALL_WIDTH = 128
-WALLS_ROLLING_SPEED = 2
-RIGHT_WALL_BOUND = WIDTH - WALL_WIDTH
-LEFT_WALL_BOUND = WALL_WIDTH
-
-# Background settings:
-BACKGROUND_WIDTH = WIDTH - 2 * WALL_WIDTH  # 2*64 is for two walls on the sides.
-BACKGROUND_ROLLING_SPEED = 1
-BACKGROUND_Y = HEIGHT - BACKGROUND.get_height()
-background_y = BACKGROUND_Y
-
-# Booleans:
-jumping = False
-falling = False
-standing = False
-rolling_down = False
-new_movement = False
-current_direction = None
-current_standing_shelf = 0
-
-# Colors:
-GRAY = (180, 180, 180)
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-
-
-def get_player_name():
-    font = pygame.font.SysFont("Arial", 32)
-    current_name = []
-    input_box = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 20, 200, 40)
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    return ''.join(current_name)
-                elif event.key == pygame.K_BACKSPACE:
-                    current_name = current_name[:-1]
-                else:
-                    if len(current_name) < 10:  # Limit name length to 10 characters
-                        current_name.append(event.unicode)
-
-        WIN.fill((0, 0, 0))  # Clear screen
-        text_surf = font.render("Enter Name: " + ''.join(current_name), True, (255, 255, 255))
-        WIN.blit(text_surf, (input_box.x - 20, input_box.y + 5))
-        pygame.draw.rect(WIN, (255, 255, 255), input_box, 2)
-        pygame.display.update()
-
-
-def save_score(name, score, difficulty):
-    with open("leaderboard.txt", "a") as file:
-        file.write(f"{name} {score} {difficulty}\n")
-
-
-def show_leaderboard():
-    try:
-        with open("leaderboard.txt", "r") as file:
-            scores = [line.strip().split(' ', 2) for line in file]  # Split each line into name, score, and difficulty
-            scores.sort(key=lambda x: int(x[1]), reverse=True)  # Sort scores in descending order
-    except FileNotFoundError:
-        scores = []
-
-    running = True
-    while running:
-        WIN.fill((0, 0, 0))  # Clear screen
-        font = pygame.font.SysFont("Arial", 24)
-        title = font.render("Leaderboard", True, (255, 255, 255))
-        WIN.blit(title, (WIDTH // 2 - title.get_width() // 2, 10))
-
-        for i, (name, score, difficulty) in enumerate(scores[:10], start=1):  # Display top 10 scores
-            text = font.render(f"{i}. {name} - {score} - {difficulty}", True, (255, 255, 255))
-            WIN.blit(text, (WIDTH // 2 - text.get_width() // 2, 30 + i * 30))
-
-        pygame.display.update()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:  # Press ESC to exit leaderboard
-                    running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:  # Click to exit leaderboard
-                running = False
-
-
-def show_instructions():
-    instructions_running = True
-    current_image_idx = 0  # Start with the first image
-
-    while instructions_running:
-        WIN.fill(BLACK)  # Clear the screen
-        font = pygame.font.SysFont("Arial", 24)
-        instructions_text = "Use the LEFT and RIGHT arrow keys to change images. Press any other key to return."
-
-        # Render instruction text above the image
-        text_surface = font.render(instructions_text, True, WHITE)
-        WIN.blit(text_surface, (20, HEIGHT - 30))  # Adjust positioning as needed
-
-        # Display the current instruction image
-        WIN.blit(instruction_images[current_image_idx],
-                 ((WIDTH - instruction_images[current_image_idx].get_width()) // 2, 50))
-
-        pygame.display.update()
-
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    current_image_idx = (current_image_idx - 1) % len(instruction_images)  # Go to the previous image
-                elif event.key == pygame.K_RIGHT:
-                    current_image_idx = (current_image_idx + 1) % len(instruction_images)  # Go to the next image
-                else:
-                    instructions_running = False  # Exit on any other key press
-
-
-def start_game():
-    pass
-
-
-def show_difficulty_selection():
-    difficulties = ["Easy", "Medium", "Hard", "Extreme"]
-    selected_difficulty_idx = 0
-    selecting_difficulty = True
-
-    while selecting_difficulty:
-        WIN.fill(BLACK)
-        font = pygame.font.SysFont("Arial", 50)
-
-        # Event handling
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP and selected_difficulty_idx > 0:
-                    selected_difficulty_idx -= 1
-                elif event.key == pygame.K_DOWN and selected_difficulty_idx < len(difficulties) - 1:
-                    selected_difficulty_idx += 1
-                elif event.key == pygame.K_RETURN:
-                    SELECTED_DIFFICULTY = difficulties[selected_difficulty_idx]
-                    adjust_difficulty(SELECTED_DIFFICULTY)  # Adjust game settings based on selected difficulty
-                    return  # Return to start the game
-
-        # Render the difficulty options
-        for idx, difficulty in enumerate(difficulties):
-            color = WHITE if idx == selected_difficulty_idx else GRAY
-            text = font.render(difficulty, True, color)
-            WIN.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - 50 + idx * 60))
-
-        pygame.display.update()
-
-
-
-def main_menu():
-    menu = True
-    options = ["Start", "Instructions", "Sound ON/OFF"]
-    selected_idx = 0
-    sound_options = ["Sound ON", "Sound OFF"]
-    selected_sound_idx = 0
-
-    while menu:
-        global SOUND_ON
-        WIN.fill(BLACK)
-        font = pygame.font.SysFont("Arial", 50)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP and selected_idx > 0:
-                    selected_idx -= 1
-                elif event.key == pygame.K_DOWN and selected_idx < len(options) - 1:
-                    selected_idx += 1
-                elif event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT and options[selected_idx] == "Sound ON/OFF":
-                    selected_sound_idx = (selected_sound_idx + 1) % 2  # Toggle sound option
-                if event.key == pygame.K_RETURN:
-                    if options[selected_idx] == "Start":
-                        show_difficulty_selection()  # Show difficulty selection menu
-                        menu = False  # Exit the main menu
-                    elif options[selected_idx] == "Instructions":
-                        show_instructions()  # Function to display instructions
-
-
-        # Render the main menu options
-        for idx, option in enumerate(options):
-            if option == "Sound ON/OFF":
-                display_text = f"{option}: {sound_options[selected_sound_idx]}"
-                SOUND_ON = sound_options[selected_sound_idx] == "Sound ON"
-            else:
-                display_text = option
-            color = WHITE if idx == selected_idx else GRAY
-            text = font.render(display_text, True, color)
-            WIN.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - 100 + idx * 60))
-
-        pygame.display.update()
-
-
-
-def adjust_difficulty(difficulty):
-    global BACKGROUND_ROLLING_SPEED, Shelf
-
-    if difficulty == "Easy":
-        BACKGROUND_ROLLING_SPEED = 1
-        Shelf.width_range = (7, 9)  # Easier: Wider shelves
-    elif difficulty == "Medium":
-        BACKGROUND_ROLLING_SPEED = 2
-        Shelf.width_range = (5, 8)
-    elif difficulty == "Hard":
-        BACKGROUND_ROLLING_SPEED = 3
-        Shelf.width_range = (4, 7)  # Harder: Narrower shelves
-    elif difficulty == "Extreme":
-        BACKGROUND_ROLLING_SPEED = 4
-        Shelf.width_range = (3, 5)  # Extreme: Very narrow shelves
-
-    # Modify the Shelf class to use the new width_range for generating shelf sizes
-
-
-class Shelf:
-    width_range = (4, 7)  # This will get overwritten based on difficulty
-
-    def __init__(self, number):
-        self.number = number
-        self.width = random.randint(*self.width_range) * 32
-        self.x = random.randint(LEFT_WALL_BOUND, RIGHT_WALL_BOUND - self.width)
-        self.y = -number * 130 + HEIGHT - 25
-        self.rect = pygame.Rect(self.x, self.y, self.width, 32)
-
-
-class Body:
-    def __init__(self):
-        self.size = 64
-        self.x = WIDTH / 2 - self.size / 2
-        self.y = HEIGHT - 25 - self.size
-        self.vel_y = 0
-        self.acceleration = 0
-        self.angle = 0
-        self.jumpable = self.vel_y <= 0  # If body is hitting a level, then it can jump only if the body is going down.
 
 
 body = Body()
@@ -310,12 +23,6 @@ for num in range(0, SHELVES_COUNT + 1):  # Creating all the game shelves.
         new_shelf.x = WALL_WIDTH
         new_shelf.rect.x = WALL_WIDTH
     total_shelves_list.append(new_shelf)
-
-# Sounds:
-SOUND_ON = False
-JUMPING_SOUND = pygame.mixer.Sound("Assets/jumping_sound.wav")
-GAMEPLAY_SOUND = pygame.mixer.Sound("Assets/gameplay_sound.wav")
-HOORAY_SOUND = pygame.mixer.Sound("Assets/hooray_sound.wav")
 
 
 def Move(direction):  # Moving the body according to the wanted direction.
@@ -392,26 +99,7 @@ def DrawWindow():  # Basically, drawing the screen.
     pygame.display.update()
 
 
-def OnShelf():  # Checking whether the body is on a shelf, returning True/False.
-    global jumping, standing, falling, BACKGROUND_ROLLING_SPEED, current_standing_shelf, MAX_SHELF_NUMBER
 
-    if body.vel_y <= 0:  # Means the body isn't moving upwards, so now it's landing.
-        for shelf in total_shelves_list:
-            if body.y <= shelf.rect.y - body.size <= body.y - body.vel_y:  # If y values collide.shelf.rect.y - body.size >= body.y and shelf.rect.y - body.size <= body.y - body.vel_y
-                if body.x + body.size * 2 / 3 >= shelf.rect.x and body.x + body.size * 1 / 3 <= shelf.rect.x + shelf.width:  # if x values collide.
-                    body.y = shelf.rect.y - body.size
-                    if current_standing_shelf != shelf.number and shelf.number % LEVEL_UP == 0 and shelf.number != 0:
-                        BACKGROUND_ROLLING_SPEED += 1  # Rolling speed increases every 30 shelves.
-                        current_standing_shelf = shelf.number
-                    if shelf.number % 100 == 0 and shelf.number != 0:
-                        if SOUND_ON:
-                            HOORAY_SOUND.play()
-                    if shelf.number == SHELVES_COUNT:
-                        GameOver()
-                    MAX_SHELF_NUMBER = shelf.number
-                    return True
-    else:  # Means body in not on a shelf.
-        jumping, standing, falling = False, False, True
 
 
 def ScreenRollDown():  # Increasing the y values of all elements.
@@ -448,25 +136,7 @@ def GameOver():
     save_score(name, MAX_SHELF_NUMBER, SELECTED_DIFFICULTY)
     show_leaderboard()
 
-    # Buttons setup
-    quit_button_position = (WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
-    running = True
-    while running:
-        mouse_pos = pygame.mouse.get_pos()
-        quit_button_hovered = quit_button_position[0] < mouse_pos[0] < quit_button_position[0] + quit_button_position[
-            2] and \
-                              quit_button_position[1] < mouse_pos[1] < quit_button_position[1] + quit_button_position[3]
-
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if quit_button_hovered:
-                    pygame.quit()
-                    sys.exit()
-
-        WIN.fill(BLACK)  # Clear screen for buttons
-        draw_button("Quit?", quit_button_position[:2], quit_button_position[2:], quit_button_hovered)
-
-        pygame.display.update()
+    pygame.display.update()
 
 
 def CheckIfTouchingFloor():  # Checking if the body is still on the main ground.
@@ -483,6 +153,27 @@ def HandleBackground():  # Drawing the background.
     if body.y >= total_shelves_list[500].rect.y:
         WIN.blit(BACKGROUND, (32, background_y))
 
+def adjust_difficulty(difficulty):
+    global SELECTED_DIFFICULTY
+    SELECTED_DIFFICULTY = None
+    global BACKGROUND_ROLLING_SPEED, Shelf
+
+    if difficulty == "Easy":
+        SELECTED_DIFFICULTY = "Easy"
+        BACKGROUND_ROLLING_SPEED = 1
+        Shelf.width_range = (7, 9)  # Easier: Wider shelves
+    elif difficulty == "Medium":
+        SELECTED_DIFFICULTY = "Medium"
+        BACKGROUND_ROLLING_SPEED = 2
+        Shelf.width_range = (5, 8)
+    elif difficulty == "Hard":
+        SELECTED_DIFFICULTY = "Hard"
+        BACKGROUND_ROLLING_SPEED = 3
+        Shelf.width_range = (3, 6)  # Harder: Narrower shelves
+    elif difficulty == "Extreme":
+        SELECTED_DIFFICULTY = "Extreme"
+        BACKGROUND_ROLLING_SPEED = 4
+        Shelf.width_range = (1, 2)  # Extreme: Very narrow shelves
 
 def main():  # Main function.
     global body, keys_pressed, total_shelves_list, jumping, standing, falling, rolling_down, new_movement
@@ -559,6 +250,6 @@ def main():  # Main function.
 
 
 if __name__ == "__main__":
-    SELECTED_DIFFICULTY = main_menu()
+    main_menu()
     adjust_difficulty(SELECTED_DIFFICULTY)
     main()
