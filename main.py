@@ -5,23 +5,13 @@ from Score import save_score
 from Shelf import Shelf
 from Body import Body
 from Const import (WIDTH, HEIGHT, GAME_FPS, JUMPING_HEIGHT, MAX_ACCELERATION, VEL_Y, VEL_X , WALLS_Y, WALL_WIDTH,
-                   WALLS_ROLLING_SPEED, RIGHT_WALL_BOUND, LEFT_WALL_BOUND)
+                   WALLS_ROLLING_SPEED, RIGHT_WALL_BOUND, LEFT_WALL_BOUND, GAMEPLAY_SOUND_LENGTH, SHELVES_COUNT,
+                   MAX_SHELF_NUMBER, LEVEL_UP, GRAY, BLACK, WHITE, YELLOW, INSTRUCTIONS_BACKGROUNDCOLOR)
 
 
 pygame.init()
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-GAMEPLAY_SOUND_LENGTH = 31  # 31 seconds.
-SHELVES_COUNT = 500  # Number of shelves in the game.
-MAX_SHELF_NUMBER = 0
 
-# Constants:
-LEVEL_UP = 30
-# Colors:
-GRAY = (180, 180, 180)
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-YELLOW = (255, 255, 0)
-INSTRUCTIONS_BACKGROUNDCOLOR = (150, 195, 213, 255)
 
 # Images:
 BODY_IMAGE = pygame.image.load("Assets/icyMan.png")
