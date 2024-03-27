@@ -36,8 +36,8 @@ CENTER_Y = (HEIGHT - MAINMENU_BACKGROUND.get_height()) // 2
 GAME_OVER_BACKGROUND = pygame.transform.scale(pygame.image.load("Assets/game_over.png"), (WIDTH, HEIGHT))
 GAME_OVER_BACKGROUND.set_colorkey(BLACK)
 instruction_images = [
-    pygame.transform.scale(pygame.image.load(r"Assets\game_instructions_goal.png"), (WIDTH, HEIGHT)),
-    pygame.transform.scale(pygame.image.load(r"Assets\game_instructions_howTo.png"), (WIDTH, HEIGHT))
+    pygame.transform.scale(pygame.image.load(r"Assets/game_instructions_goal.png"), (WIDTH, HEIGHT)),
+    pygame.transform.scale(pygame.image.load(r"Assets/game_instructions_howTo.png"), (WIDTH, HEIGHT))
 
 ]
 
