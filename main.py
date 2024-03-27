@@ -1,4 +1,4 @@
-from Const import (WIDTH, HEIGHT, GAME_FPS, JUMPING_HEIGHT, MAX_ACCELERATION, VEL_Y, VEL_X , WALLS_Y, WALL_WIDTH,
+from Const import (WIDTH, HEIGHT, GAME_FPS, JUMPING_HEIGHT, MAX_ACCELERATION, VEL_Y, VEL_X, WALLS_Y, WALL_WIDTH,
                    WALLS_ROLLING_SPEED, RIGHT_WALL_BOUND, LEFT_WALL_BOUND, GAMEPLAY_SOUND_LENGTH, SHELVES_COUNT,
                    MAX_SHELF_NUMBER, LEVEL_UP, GRAY, BLACK, WHITE, YELLOW, INSTRUCTIONS_BACKGROUNDCOLOR, WIN,
                    BODY_IMAGE, BACKGROUND, BRICK_IMAGE, MAINMENU_BACKGROUND, CENTER_X, CENTER_Y,
@@ -6,7 +6,7 @@ from Const import (WIDTH, HEIGHT, GAME_FPS, JUMPING_HEIGHT, MAX_ACCELERATION, VE
                    SOUND_ON, JUMPING_SOUND, BACKGROUND_ROLLING_SPEED,
                    BACKGROUND_Y, BACKGROUND_WIDTH, SHELF_BRICK_IMAGE, SHELF_BRICK_IMAGE2,
                    GAMEPLAY_SOUND, background_y, rolling_down, current_standing_shelf, HOORAY_SOUND,
-                    jumping, standing, falling, current_direction, MAX_ACCELERATION, VEL_Y, BODY_IMAGE, BODY_IMAGE,
+                   jumping, standing, falling, current_direction, MAX_ACCELERATION, VEL_Y, BODY_IMAGE, BODY_IMAGE,
                    )
 
 import sys
@@ -16,9 +16,7 @@ from Score import save_score, show_leaderboard
 from Shelf import Shelf
 from Body import Body
 from Instruction import show_instructions
-
-
-
+from Useful import get_player_name
 
 
 body = Body()
@@ -32,35 +30,6 @@ for num in range(0, SHELVES_COUNT + 1):  # Creating all the game shelves.
         new_shelf.x = WALL_WIDTH
         new_shelf.rect.x = WALL_WIDTH
     total_shelves_list.append(new_shelf)
-
-
-def get_player_name():
-    font = pygame.font.SysFont("Arial", 32)
-    current_name = []
-    input_box = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 20, 200, 40)
-    WIN.fill(INSTRUCTIONS_BACKGROUNDCOLOR)  # background color
-    WIN.blit(GAME_OVER_BACKGROUND, (CENTER_X, CENTER_Y))
-    while True:
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    return ''.join(current_name)
-                elif event.key == pygame.K_BACKSPACE:
-                    current_name = current_name[:-1]
-                else:
-                    if len(current_name) < 10:  # Limit name length to 10 characters
-                        current_name.append(event.unicode)
-
-        text_surf = font.render("Enter Name: " + ''.join(current_name), True, (255, 255, 255))
-        WIN.blit(text_surf, (input_box.x - 20, input_box.y + 5))
-        pygame.display.update()
-
-
-
 
 
 
@@ -282,9 +251,6 @@ def ScreenRollDown():  # Increasing the y values of all elements.
     WALLS_Y += WALLS_ROLLING_SPEED
     if WALLS_Y == 0:
         WALLS_Y = -108
-
-
-
 
 
 def GameOver():
