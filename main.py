@@ -6,30 +6,12 @@ from Shelf import Shelf
 from Body import Body
 from Const import (WIDTH, HEIGHT, GAME_FPS, JUMPING_HEIGHT, MAX_ACCELERATION, VEL_Y, VEL_X , WALLS_Y, WALL_WIDTH,
                    WALLS_ROLLING_SPEED, RIGHT_WALL_BOUND, LEFT_WALL_BOUND, GAMEPLAY_SOUND_LENGTH, SHELVES_COUNT,
-                   MAX_SHELF_NUMBER, LEVEL_UP, GRAY, BLACK, WHITE, YELLOW, INSTRUCTIONS_BACKGROUNDCOLOR)
+                   MAX_SHELF_NUMBER, LEVEL_UP, GRAY, BLACK, WHITE, YELLOW, INSTRUCTIONS_BACKGROUNDCOLOR, WIN,
+                   BODY_IMAGE, BACKGROUND, BRICK_IMAGE, SHELF_BRICK_IMAGE, MAINMENU_BACKGROUND, CENTER_X, CENTER_Y,
+                   GAME_OVER_BACKGROUND, instruction_images, SHELF_BRICK_IMAGE2, SHELF_BRICK_IMAGE3)
 
 
-pygame.init()
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-
-# Images:
-BODY_IMAGE = pygame.image.load("Assets/icyMan.png")
-BACKGROUND = pygame.image.load("Assets/background2.jpg")
-BRICK_IMAGE = pygame.image.load("Assets/brick_block.png")
-SHELF_BRICK_IMAGE = pygame.image.load("Assets/shelf_brick.png")
-SHELF_BRICK_IMAGE2 = pygame.image.load("Assets/ice.png")
-SHELF_BRICK_IMAGE3 = pygame.image.load("Assets/fire.png.webp")
-MAINMENU_BACKGROUND = pygame.transform.scale(pygame.image.load("Assets/IcyTowerBackground.gif"), (WIDTH, HEIGHT))
-CENTER_X = (WIDTH - MAINMENU_BACKGROUND.get_width()) // 2
-CENTER_Y = (HEIGHT - MAINMENU_BACKGROUND.get_height()) // 2
-GAME_OVER_BACKGROUND = pygame.transform.scale(pygame.image.load("Assets/game_over.png"), (WIDTH, HEIGHT))
-GAME_OVER_BACKGROUND.set_colorkey(BLACK)
-instruction_images = [
-    pygame.transform.scale(pygame.image.load(r"Assets/game_instructions_goal.png"), (WIDTH, HEIGHT)),
-    pygame.transform.scale(pygame.image.load(r"Assets/game_instructions_howTo.png"), (WIDTH, HEIGHT))
-
-]
 
 new_width = 800
 new_height = 600

@@ -1,3 +1,5 @@
+import pygame
+
 GAME_FPS = 150
 WIDTH, HEIGHT = 800, 600
 JUMPING_HEIGHT = 20
@@ -24,3 +26,25 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 YELLOW = (255, 255, 0)
 INSTRUCTIONS_BACKGROUNDCOLOR = (150, 195, 213, 255)
+
+pygame.init()
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+
+
+# Images:
+BODY_IMAGE = pygame.image.load("Assets/icyMan.png")
+BACKGROUND = pygame.image.load("Assets/background2.jpg")
+BRICK_IMAGE = pygame.image.load("Assets/brick_block.png")
+SHELF_BRICK_IMAGE = pygame.image.load("Assets/shelf_brick.png")
+SHELF_BRICK_IMAGE2 = pygame.image.load("Assets/ice.png")
+SHELF_BRICK_IMAGE3 = pygame.image.load("Assets/fire.png.webp")
+MAINMENU_BACKGROUND = pygame.transform.scale(pygame.image.load("Assets/IcyTowerBackground.gif"), (WIDTH, HEIGHT))
+CENTER_X = (WIDTH - MAINMENU_BACKGROUND.get_width()) // 2
+CENTER_Y = (HEIGHT - MAINMENU_BACKGROUND.get_height()) // 2
+GAME_OVER_BACKGROUND = pygame.transform.scale(pygame.image.load("Assets/game_over.png"), (WIDTH, HEIGHT))
+GAME_OVER_BACKGROUND.set_colorkey(BLACK)
+instruction_images = [
+    pygame.transform.scale(pygame.image.load(r"Assets/game_instructions_goal.png"), (WIDTH, HEIGHT)),
+    pygame.transform.scale(pygame.image.load(r"Assets/game_instructions_howTo.png"), (WIDTH, HEIGHT))
+
+]
