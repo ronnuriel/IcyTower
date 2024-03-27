@@ -87,3 +87,20 @@ SOUND_ON = False
 JUMPING_SOUND = pygame.mixer.Sound("Assets/jumping_sound.wav")
 GAMEPLAY_SOUND = pygame.mixer.Sound("Assets/gameplay_sound.wav")
 HOORAY_SOUND = pygame.mixer.Sound("Assets/hooray_sound.wav")
+
+
+from Body import Body
+body = Body()
+
+total_shelves_list = []
+from Shelf import Shelf
+for num in range(0, SHELVES_COUNT + 1):  # Creating all the game shelves.
+    new_shelf = Shelf(num)
+    if num % LEVEL_UP == 0:
+        new_shelf.width = BACKGROUND_WIDTH
+        new_shelf.rect.width = BACKGROUND_WIDTH
+        new_shelf.x = WALL_WIDTH
+        new_shelf.rect.x = WALL_WIDTH
+    total_shelves_list.append(new_shelf)
+
+

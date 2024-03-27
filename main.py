@@ -7,32 +7,17 @@ from Const import (WIDTH, HEIGHT, GAME_FPS, JUMPING_HEIGHT, MAX_ACCELERATION, VE
                    BACKGROUND_Y, BACKGROUND_WIDTH, SHELF_BRICK_IMAGE, SHELF_BRICK_IMAGE2,
                    GAMEPLAY_SOUND, background_y, rolling_down, current_standing_shelf, HOORAY_SOUND,
                    jumping, standing, falling, current_direction, MAX_ACCELERATION, VEL_Y, BODY_IMAGE, BODY_IMAGE,
-                   )
+                   body, total_shelves_list)
 
 import sys
 import pygame
 import random
 from Score import save_score, show_leaderboard
+
 from Shelf import Shelf
-from Body import Body
+# from Body import Body
 from Instruction import show_instructions
 from Useful import get_player_name
-
-
-body = Body()
-
-total_shelves_list = []
-for num in range(0, SHELVES_COUNT + 1):  # Creating all the game shelves.
-    new_shelf = Shelf(num)
-    if num % LEVEL_UP == 0:
-        new_shelf.width = BACKGROUND_WIDTH
-        new_shelf.rect.width = BACKGROUND_WIDTH
-        new_shelf.x = WALL_WIDTH
-        new_shelf.rect.x = WALL_WIDTH
-    total_shelves_list.append(new_shelf)
-
-
-
 
 
 def show_difficulty_selection():
@@ -218,28 +203,6 @@ def DrawWindow():  # Basically, drawing the screen.
     pygame.display.update()
 
 
-def OnShelf():  # Checking whether the body is on a shelf, returning True/False.
-    global jumping, standing, falling, BACKGROUND_ROLLING_SPEED, current_standing_shelf, MAX_SHELF_NUMBER
-
-    if body.vel_y <= 0:  # Means the body isn't moving upwards, so now it's landing.
-        for shelf in total_shelves_list:
-            if body.y <= shelf.rect.y - body.size <= body.y - body.vel_y:  # If y values collide.shelf.rect.y - body.size >= body.y and shelf.rect.y - body.size <= body.y - body.vel_y
-                if body.x + body.size * 2 / 3 >= shelf.rect.x and body.x + body.size * 1 / 3 <= shelf.rect.x + shelf.width:  # if x values collide.
-                    body.y = shelf.rect.y - body.size
-                    if current_standing_shelf != shelf.number and shelf.number % LEVEL_UP == 0 and shelf.number != 0:
-                        BACKGROUND_ROLLING_SPEED += 1  # Rolling speed increases every 30 shelves.
-                        current_standing_shelf = shelf.number
-                    if shelf.number % 100 == 0 and shelf.number != 0:
-                        if SOUND_ON:
-                            HOORAY_SOUND.play()
-                    if shelf.number == SHELVES_COUNT:
-                        GameOver()
-                    MAX_SHELF_NUMBER = shelf.number
-                    return True
-    else:  # Means body in not on a shelf.
-        jumping, standing, falling = False, False, True
-
-
 def ScreenRollDown():  # Increasing the y values of all elements.
     global background_y, WALLS_Y
     for shelf in total_shelves_list:
@@ -280,6 +243,28 @@ def CheckIfTouchingFloor():  # Checking if the body is still on the main ground.
 def HandleBackground():  # Drawing the background.
     if body.y >= total_shelves_list[500].rect.y:
         WIN.blit(BACKGROUND, (32, background_y))
+
+
+def OnShelf():  # Checking whether the body is on a shelf, returning True/False.
+    global jumping, standing, falling, BACKGROUND_ROLLING_SPEED, current_standing_shelf, MAX_SHELF_NUMBER
+
+    if body.vel_y <= 0:  # Means the body isn't moving upwards, so now it's landing.
+        for shelf in total_shelves_list:
+            if body.y <= shelf.rect.y - body.size <= body.y - body.vel_y:  # If y values collide.shelf.rect.y - body.size >= body.y and shelf.rect.y - body.size <= body.y - body.vel_y
+                if body.x + body.size * 2 / 3 >= shelf.rect.x and body.x + body.size * 1 / 3 <= shelf.rect.x + shelf.width:  # if x values collide.
+                    body.y = shelf.rect.y - body.size
+                    if current_standing_shelf != shelf.number and shelf.number % LEVEL_UP == 0 and shelf.number != 0:
+                        BACKGROUND_ROLLING_SPEED += 1  # Rolling speed increases every 30 shelves.
+                        current_standing_shelf = shelf.number
+                    if shelf.number % 100 == 0 and shelf.number != 0:
+                        if SOUND_ON:
+                            HOORAY_SOUND.play()
+                    if shelf.number == SHELVES_COUNT:
+                        GameOver()
+                    MAX_SHELF_NUMBER = shelf.number
+                    return True
+    else:  # Means body in not on a shelf.
+        jumping, standing, falling = False, False, True
 
 
 def main():  # Main function.
