@@ -7,50 +7,18 @@ from Body import Body
 from Const import (WIDTH, HEIGHT, GAME_FPS, JUMPING_HEIGHT, MAX_ACCELERATION, VEL_Y, VEL_X , WALLS_Y, WALL_WIDTH,
                    WALLS_ROLLING_SPEED, RIGHT_WALL_BOUND, LEFT_WALL_BOUND, GAMEPLAY_SOUND_LENGTH, SHELVES_COUNT,
                    MAX_SHELF_NUMBER, LEVEL_UP, GRAY, BLACK, WHITE, YELLOW, INSTRUCTIONS_BACKGROUNDCOLOR, WIN,
-                   BODY_IMAGE, BACKGROUND, BRICK_IMAGE, SHELF_BRICK_IMAGE, MAINMENU_BACKGROUND, CENTER_X, CENTER_Y,
-                   GAME_OVER_BACKGROUND, instruction_images, SHELF_BRICK_IMAGE2, SHELF_BRICK_IMAGE3)
+                   BODY_IMAGE, BACKGROUND, BRICK_IMAGE, MAINMENU_BACKGROUND, CENTER_X, CENTER_Y,
+                   GAME_OVER_BACKGROUND, instruction_images, SHELF_BRICK_IMAGE3,
+                   SOUND_ON, JUMPING_SOUND, BACKGROUND_ROLLING_SPEED,
+                   BACKGROUND_Y, BACKGROUND_WIDTH, SHELF_BRICK_IMAGE, SHELF_BRICK_IMAGE2,
+                   GAMEPLAY_SOUND, background_y, rolling_down, current_standing_shelf, HOORAY_SOUND,
+                    jumping, standing, falling, current_direction, MAX_ACCELERATION, VEL_Y, BODY_IMAGE, BODY_IMAGE,
+                   )
 
 
 
 
-new_width = 800
-new_height = 600
 
-for i in range(len(instruction_images)):
-    instruction_images[i] = pygame.transform.scale(instruction_images[i], (new_width, new_height))
-
-new_width = 64
-new_height = 64
-# Resize the sprite
-BODY_IMAGE = pygame.transform.scale(BODY_IMAGE, (new_width, new_height))
-
-new_height = 32
-new_width = 32
-SHELF_BRICK_IMAGE2 = pygame.transform.scale(SHELF_BRICK_IMAGE2, (new_width, new_height))
-SHELF_BRICK_IMAGE3 = pygame.transform.scale(SHELF_BRICK_IMAGE3, (new_width, new_height))
-
-
-
-# Background settings:
-BACKGROUND_WIDTH = WIDTH - 2 * WALL_WIDTH  # 2*64 is for two walls on the sides.
-BACKGROUND_ROLLING_SPEED = 1
-BACKGROUND_Y = HEIGHT - BACKGROUND.get_height()
-background_y = BACKGROUND_Y
-
-# Booleans:
-jumping = False
-falling = False
-standing = False
-rolling_down = False
-new_movement = False
-current_direction = None
-current_standing_shelf = 0
-
-# Sounds:
-SOUND_ON = False
-JUMPING_SOUND = pygame.mixer.Sound("Assets/jumping_sound.wav")
-GAMEPLAY_SOUND = pygame.mixer.Sound("Assets/gameplay_sound.wav")
-HOORAY_SOUND = pygame.mixer.Sound("Assets/hooray_sound.wav")
 
 body = Body()
 

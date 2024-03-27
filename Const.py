@@ -48,3 +48,42 @@ instruction_images = [
     pygame.transform.scale(pygame.image.load(r"Assets/game_instructions_howTo.png"), (WIDTH, HEIGHT))
 
 ]
+
+new_width = 800
+new_height = 600
+
+for i in range(len(instruction_images)):
+    instruction_images[i] = pygame.transform.scale(instruction_images[i], (new_width, new_height))
+
+new_width = 64
+new_height = 64
+# Resize the sprite
+BODY_IMAGE = pygame.transform.scale(BODY_IMAGE, (new_width, new_height))
+
+new_height = 32
+new_width = 32
+SHELF_BRICK_IMAGE2 = pygame.transform.scale(SHELF_BRICK_IMAGE2, (new_width, new_height))
+SHELF_BRICK_IMAGE3 = pygame.transform.scale(SHELF_BRICK_IMAGE3, (new_width, new_height))
+
+
+
+# Background settings:
+BACKGROUND_WIDTH = WIDTH - 2 * WALL_WIDTH  # 2*64 is for two walls on the sides.
+BACKGROUND_ROLLING_SPEED = 1
+BACKGROUND_Y = HEIGHT - BACKGROUND.get_height()
+background_y = BACKGROUND_Y
+
+# Booleans:
+jumping = False
+falling = False
+standing = False
+rolling_down = False
+new_movement = False
+current_direction = None
+current_standing_shelf = 0
+
+# Sounds:
+SOUND_ON = False
+JUMPING_SOUND = pygame.mixer.Sound("Assets/jumping_sound.wav")
+GAMEPLAY_SOUND = pygame.mixer.Sound("Assets/gameplay_sound.wav")
+HOORAY_SOUND = pygame.mixer.Sound("Assets/hooray_sound.wav")
