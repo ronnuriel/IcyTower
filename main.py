@@ -2,10 +2,8 @@ import sys
 import pygame
 import random
 
-YELLOW = (255, 255, 0)
-
 GAME_FPS = 150
-WIDTH, HEIGHT = 1000, 700
+WIDTH, HEIGHT = 800, 600
 JUMPING_HEIGHT = 20
 MAX_ACCELERATION = 10
 VEL_X = 3  # Setting the moving speed.
@@ -18,24 +16,29 @@ MAX_SHELF_NUMBER = 0
 
 # Constants:
 LEVEL_UP = 30
-SELECTED_DIFFICULTY = None
+# Colors:
+GRAY = (180, 180, 180)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+YELLOW = (255, 255, 0)
+INSTRUCTIONS_BACKGROUNDCOLOR = (150, 195, 213, 255)
 
 # Images:
-# BODY_IMAGE = pygame.image.load("Assets/body.png")
-# BACKGROUND = pygame.image.load("Assets/background.png")
 BODY_IMAGE = pygame.image.load("Assets/icyMan.png")
 BACKGROUND = pygame.image.load("Assets/background2.jpg")
 BRICK_IMAGE = pygame.image.load("Assets/brick_block.png")
 SHELF_BRICK_IMAGE = pygame.image.load("Assets/shelf_brick.png")
 SHELF_BRICK_IMAGE2 = pygame.image.load("Assets/ice.png")
 SHELF_BRICK_IMAGE3 = pygame.image.load("Assets/fire.png.webp")
-
+MAINMENU_BACKGROUND = pygame.transform.scale(pygame.image.load("Assets/IcyTowerBackground.gif"), (WIDTH, HEIGHT))
+CENTER_X = (WIDTH - MAINMENU_BACKGROUND.get_width()) // 2
+CENTER_Y = (HEIGHT - MAINMENU_BACKGROUND.get_height()) // 2
+GAME_OVER_BACKGROUND = pygame.transform.scale(pygame.image.load("Assets/game_over.png"), (WIDTH, HEIGHT))
+GAME_OVER_BACKGROUND.set_colorkey(BLACK)
 instruction_images = [
-    pygame.image.load("Assets/test.jpeg"),
-    pygame.image.load("assets/background2.jpg"),
-    pygame.image.load("assets/background3.jpg"),
+    pygame.transform.scale(pygame.image.load(r"Assets\game_instructions_goal.png"), (WIDTH, HEIGHT)),
+    pygame.transform.scale(pygame.image.load(r"Assets\game_instructions_howTo.png"), (WIDTH, HEIGHT))
 
-    pygame.image.load("Assets/body.png"),
 ]
 
 new_width = 800
@@ -76,18 +79,16 @@ new_movement = False
 current_direction = None
 current_standing_shelf = 0
 
-# Colors:
-GRAY = (180, 180, 180)
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
 
 
 def get_player_name():
     font = pygame.font.SysFont("Arial", 32)
     current_name = []
     input_box = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 20, 200, 40)
-
+    WIN.fill(INSTRUCTIONS_BACKGROUNDCOLOR)  # background color
+    WIN.blit(GAME_OVER_BACKGROUND, (CENTER_X, CENTER_Y))
     while True:
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -101,10 +102,8 @@ def get_player_name():
                     if len(current_name) < 10:  # Limit name length to 10 characters
                         current_name.append(event.unicode)
 
-        WIN.fill((0, 0, 0))  # Clear screen
         text_surf = font.render("Enter Name: " + ''.join(current_name), True, (255, 255, 255))
         WIN.blit(text_surf, (input_box.x - 20, input_box.y + 5))
-        pygame.draw.rect(WIN, (255, 255, 255), input_box, 2)
         pygame.display.update()
 
 
@@ -121,16 +120,35 @@ def show_leaderboard():
     except FileNotFoundError:
         scores = []
 
+
+    # Buttons setup
+    quit_button_position = (WIDTH // 2 - 100, (HEIGHT // 2) + 100, 200, 50)
     running = True
     while running:
-        WIN.fill((0, 0, 0))  # Clear screen
+        WIN.fill(INSTRUCTIONS_BACKGROUNDCOLOR)  # background color
+        WIN.blit(GAME_OVER_BACKGROUND, (CENTER_X, CENTER_Y))
         font = pygame.font.SysFont("Arial", 24)
-        title = font.render("Leaderboard", True, (255, 255, 255))
+        title = font.render("Top 10 Players:", True, (255, 255, 255))
         WIN.blit(title, (WIDTH // 2 - title.get_width() // 2, 10))
 
         for i, (name, score, difficulty) in enumerate(scores[:10], start=1):  # Display top 10 scores
             text = font.render(f"{i}. {name} - {score} - {difficulty}", True, (255, 255, 255))
             WIN.blit(text, (WIDTH // 2 - text.get_width() // 2, 30 + i * 30))
+
+        mouse_pos = pygame.mouse.get_pos()
+        quit_button_hovered = quit_button_position[0] < mouse_pos[0] < quit_button_position[0] + quit_button_position[
+            2] and \
+                              quit_button_position[1] < mouse_pos[1] < quit_button_position[1] + quit_button_position[3]
+
+
+
+        draw_button("Quit?", quit_button_position[:2], quit_button_position[2:], quit_button_hovered)
+
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if quit_button_hovered:
+                    pygame.quit()
+                    sys.exit()
 
         pygame.display.update()
 
@@ -150,7 +168,7 @@ def show_instructions():
     current_image_idx = 0  # Start with the first image
 
     while instructions_running:
-        WIN.fill(BLACK)  # Clear the screen
+        WIN.fill(INSTRUCTIONS_BACKGROUNDCOLOR)  # background color
         font = pygame.font.SysFont("Arial", 24)
         instructions_text = "Use the LEFT and RIGHT arrow keys to change images. Press any other key to return."
 
@@ -174,17 +192,19 @@ def show_instructions():
                     instructions_running = False  # Exit on any other key press
 
 
-def start_game():
-    pass
+
+
 
 
 def show_difficulty_selection():
+    global SELECTED_DIFFICULTY
     difficulties = ["Easy", "Medium", "Hard", "Extreme"]
     selected_difficulty_idx = 0
     selecting_difficulty = True
 
     while selecting_difficulty:
-        WIN.fill(BLACK)
+        WIN.fill(INSTRUCTIONS_BACKGROUNDCOLOR)  # background color
+        WIN.blit(MAINMENU_BACKGROUND, (CENTER_X, CENTER_Y))
         font = pygame.font.SysFont("Arial", 50)
 
         # Event handling
@@ -211,17 +231,18 @@ def show_difficulty_selection():
         pygame.display.update()
 
 
-
 def main_menu():
     menu = True
-    options = ["Start", "Instructions", "Sound ON/OFF"]
+    options = ["Start", "Instructions", "Sound options", "Quit"]
     selected_idx = 0
     sound_options = ["Sound ON", "Sound OFF"]
     selected_sound_idx = 0
 
+
     while menu:
         global SOUND_ON
-        WIN.fill(BLACK)
+        WIN.fill(INSTRUCTIONS_BACKGROUNDCOLOR)  # background color
+        WIN.blit(MAINMENU_BACKGROUND, (CENTER_X, CENTER_Y))
         font = pygame.font.SysFont("Arial", 50)
 
         for event in pygame.event.get():
@@ -233,7 +254,8 @@ def main_menu():
                     selected_idx -= 1
                 elif event.key == pygame.K_DOWN and selected_idx < len(options) - 1:
                     selected_idx += 1
-                elif event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT and options[selected_idx] == "Sound ON/OFF":
+                elif event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT and options[
+                    selected_idx] == "Sound ON/OFF":
                     selected_sound_idx = (selected_sound_idx + 1) % 2  # Toggle sound option
                 if event.key == pygame.K_RETURN:
                     if options[selected_idx] == "Start":
@@ -241,11 +263,13 @@ def main_menu():
                         menu = False  # Exit the main menu
                     elif options[selected_idx] == "Instructions":
                         show_instructions()  # Function to display instructions
-
+                    elif options[selected_idx] == "Quit":
+                        pygame.quit()
+                        quit()
 
         # Render the main menu options
         for idx, option in enumerate(options):
-            if option == "Sound ON/OFF":
+            if option == "Sound options":
                 display_text = f"{option}: {sound_options[selected_sound_idx]}"
                 SOUND_ON = sound_options[selected_sound_idx] == "Sound ON"
             else:
@@ -257,22 +281,27 @@ def main_menu():
         pygame.display.update()
 
 
-
 def adjust_difficulty(difficulty):
+    global SELECTED_DIFFICULTY
+    SELECTED_DIFFICULTY = None
     global BACKGROUND_ROLLING_SPEED, Shelf
 
     if difficulty == "Easy":
+        SELECTED_DIFFICULTY = "Easy"
         BACKGROUND_ROLLING_SPEED = 1
         Shelf.width_range = (7, 9)  # Easier: Wider shelves
     elif difficulty == "Medium":
+        SELECTED_DIFFICULTY = "Medium"
         BACKGROUND_ROLLING_SPEED = 2
         Shelf.width_range = (5, 8)
     elif difficulty == "Hard":
+        SELECTED_DIFFICULTY = "Hard"
         BACKGROUND_ROLLING_SPEED = 3
-        Shelf.width_range = (4, 7)  # Harder: Narrower shelves
+        Shelf.width_range = (3, 6)  # Harder: Narrower shelves
     elif difficulty == "Extreme":
+        SELECTED_DIFFICULTY = "Extreme"
         BACKGROUND_ROLLING_SPEED = 4
-        Shelf.width_range = (3, 5)  # Extreme: Very narrow shelves
+        Shelf.width_range = (1, 2)  # Extreme: Very narrow shelves
 
     # Modify the Shelf class to use the new width_range for generating shelf sizes
 
@@ -448,25 +477,8 @@ def GameOver():
     save_score(name, MAX_SHELF_NUMBER, SELECTED_DIFFICULTY)
     show_leaderboard()
 
-    # Buttons setup
-    quit_button_position = (WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
-    running = True
-    while running:
-        mouse_pos = pygame.mouse.get_pos()
-        quit_button_hovered = quit_button_position[0] < mouse_pos[0] < quit_button_position[0] + quit_button_position[
-            2] and \
-                              quit_button_position[1] < mouse_pos[1] < quit_button_position[1] + quit_button_position[3]
 
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                if quit_button_hovered:
-                    pygame.quit()
-                    sys.exit()
-
-        WIN.fill(BLACK)  # Clear screen for buttons
-        draw_button("Quit?", quit_button_position[:2], quit_button_position[2:], quit_button_hovered)
-
-        pygame.display.update()
+    pygame.display.update()
 
 
 def CheckIfTouchingFloor():  # Checking if the body is still on the main ground.
@@ -559,6 +571,6 @@ def main():  # Main function.
 
 
 if __name__ == "__main__":
-    SELECTED_DIFFICULTY = main_menu()
+    main_menu()
     adjust_difficulty(SELECTED_DIFFICULTY)
     main()
