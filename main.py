@@ -1,13 +1,13 @@
 import sys
 import pygame
 import random
+from Score import save_score
+from Shelf import Shelf
+from Body import Body
+from Const import (WIDTH, HEIGHT, GAME_FPS, JUMPING_HEIGHT, MAX_ACCELERATION, VEL_Y, VEL_X , WALLS_Y, WALL_WIDTH,
+                   WALLS_ROLLING_SPEED, RIGHT_WALL_BOUND, LEFT_WALL_BOUND)
 
-GAME_FPS = 150
-WIDTH, HEIGHT = 800, 600
-JUMPING_HEIGHT = 20
-MAX_ACCELERATION = 10
-VEL_X = 3  # Setting the moving speed.
-VEL_Y = JUMPING_HEIGHT  # Setting the jumping height.
+
 pygame.init()
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 GAMEPLAY_SOUND_LENGTH = 31  # 31 seconds.
@@ -57,12 +57,7 @@ new_width = 32
 SHELF_BRICK_IMAGE2 = pygame.transform.scale(SHELF_BRICK_IMAGE2, (new_width, new_height))
 SHELF_BRICK_IMAGE3 = pygame.transform.scale(SHELF_BRICK_IMAGE3, (new_width, new_height))
 
-# Walls settings:
-WALLS_Y = -128
-WALL_WIDTH = 128
-WALLS_ROLLING_SPEED = 2
-RIGHT_WALL_BOUND = WIDTH - WALL_WIDTH
-LEFT_WALL_BOUND = WALL_WIDTH
+
 
 # Background settings:
 BACKGROUND_WIDTH = WIDTH - 2 * WALL_WIDTH  # 2*64 is for two walls on the sides.
@@ -79,6 +74,23 @@ new_movement = False
 current_direction = None
 current_standing_shelf = 0
 
+# Sounds:
+SOUND_ON = False
+JUMPING_SOUND = pygame.mixer.Sound("Assets/jumping_sound.wav")
+GAMEPLAY_SOUND = pygame.mixer.Sound("Assets/gameplay_sound.wav")
+HOORAY_SOUND = pygame.mixer.Sound("Assets/hooray_sound.wav")
+
+body = Body()
+
+total_shelves_list = []
+for num in range(0, SHELVES_COUNT + 1):  # Creating all the game shelves.
+    new_shelf = Shelf(num)
+    if num % LEVEL_UP == 0:
+        new_shelf.width = BACKGROUND_WIDTH
+        new_shelf.rect.width = BACKGROUND_WIDTH
+        new_shelf.x = WALL_WIDTH
+        new_shelf.rect.x = WALL_WIDTH
+    total_shelves_list.append(new_shelf)
 
 
 def get_player_name():
@@ -107,11 +119,6 @@ def get_player_name():
         pygame.display.update()
 
 
-def save_score(name, score, difficulty):
-    with open("leaderboard.txt", "a") as file:
-        file.write(f"{name} {score} {difficulty}\n")
-
-
 def show_leaderboard():
     try:
         with open("leaderboard.txt", "r") as file:
@@ -119,7 +126,6 @@ def show_leaderboard():
             scores.sort(key=lambda x: int(x[1]), reverse=True)  # Sort scores in descending order
     except FileNotFoundError:
         scores = []
-
 
     # Buttons setup
     quit_button_position = (WIDTH // 2 - 100, (HEIGHT // 2) + 100, 200, 50)
@@ -139,8 +145,6 @@ def show_leaderboard():
         quit_button_hovered = quit_button_position[0] < mouse_pos[0] < quit_button_position[0] + quit_button_position[
             2] and \
                               quit_button_position[1] < mouse_pos[1] < quit_button_position[1] + quit_button_position[3]
-
-
 
         draw_button("Quit?", quit_button_position[:2], quit_button_position[2:], quit_button_hovered)
 
@@ -192,10 +196,6 @@ def show_instructions():
                     instructions_running = False  # Exit on any other key press
 
 
-
-
-
-
 def show_difficulty_selection():
     global SELECTED_DIFFICULTY
     difficulties = ["Easy", "Medium", "Hard", "Extreme"]
@@ -237,7 +237,6 @@ def main_menu():
     selected_idx = 0
     sound_options = ["Sound ON", "Sound OFF"]
     selected_sound_idx = 0
-
 
     while menu:
         global SOUND_ON
@@ -304,47 +303,6 @@ def adjust_difficulty(difficulty):
         Shelf.width_range = (1, 2)  # Extreme: Very narrow shelves
 
     # Modify the Shelf class to use the new width_range for generating shelf sizes
-
-
-class Shelf:
-    width_range = (4, 7)  # This will get overwritten based on difficulty
-
-    def __init__(self, number):
-        self.number = number
-        self.width = random.randint(*self.width_range) * 32
-        self.x = random.randint(LEFT_WALL_BOUND, RIGHT_WALL_BOUND - self.width)
-        self.y = -number * 130 + HEIGHT - 25
-        self.rect = pygame.Rect(self.x, self.y, self.width, 32)
-
-
-class Body:
-    def __init__(self):
-        self.size = 64
-        self.x = WIDTH / 2 - self.size / 2
-        self.y = HEIGHT - 25 - self.size
-        self.vel_y = 0
-        self.acceleration = 0
-        self.angle = 0
-        self.jumpable = self.vel_y <= 0  # If body is hitting a level, then it can jump only if the body is going down.
-
-
-body = Body()
-
-total_shelves_list = []
-for num in range(0, SHELVES_COUNT + 1):  # Creating all the game shelves.
-    new_shelf = Shelf(num)
-    if num % LEVEL_UP == 0:
-        new_shelf.width = BACKGROUND_WIDTH
-        new_shelf.rect.width = BACKGROUND_WIDTH
-        new_shelf.x = WALL_WIDTH
-        new_shelf.rect.x = WALL_WIDTH
-    total_shelves_list.append(new_shelf)
-
-# Sounds:
-SOUND_ON = False
-JUMPING_SOUND = pygame.mixer.Sound("Assets/jumping_sound.wav")
-GAMEPLAY_SOUND = pygame.mixer.Sound("Assets/gameplay_sound.wav")
-HOORAY_SOUND = pygame.mixer.Sound("Assets/hooray_sound.wav")
 
 
 def Move(direction):  # Moving the body according to the wanted direction.
@@ -476,7 +434,6 @@ def GameOver():
 
     save_score(name, MAX_SHELF_NUMBER, SELECTED_DIFFICULTY)
     show_leaderboard()
-
 
     pygame.display.update()
 
