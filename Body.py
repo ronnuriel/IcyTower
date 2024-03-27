@@ -1,7 +1,6 @@
 from Const import (WIDTH, HEIGHT)
 
 
-
 class Body:
     def __init__(self):
         self.size = 64

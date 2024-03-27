@@ -1,5 +1,5 @@
 from Const import (WIDTH, HEIGHT, CENTER_X, YELLOW, GRAY, BLACK, WHITE,
-                   CENTER_Y, INSTRUCTIONS_BACKGROUNDCOLOR, GAME_OVER_BACKGROUND,WIN)
+                   CENTER_Y, INSTRUCTIONS_BACKGROUNDCOLOR, GAME_OVER_BACKGROUND, WIN)
 import pygame
 import sys
 
@@ -13,9 +13,11 @@ def draw_button(text, position, size, is_hovered):
     WIN.blit(text_surf, text_rect)
     return button_rect
 
+
 def save_score(name, score, difficulty):
     with open("leaderboard.txt", "a") as file:
         file.write(f"{name} {score} {difficulty}\n")
+
 
 def show_leaderboard():
     try:
